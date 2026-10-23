@@ -1,9 +1,11 @@
 export { Header } from './Header';
 export { Hero } from './Hero';
-export { About } from './About';
-export { Events } from './Events';
-export { Footer } from './Footer';
 export { Partners } from './Partners';
-export { Team } from './Team';
+export { Bridge } from './Bridge';
 export { Expertise } from './Expertise';
-export { Loading } from './Loading';
+export { Featured } from './Featured';
+export { Events } from './Events';
+export { Gallery } from './Gallery';
+export { About } from './About';
+export { Team } from './Team';
+export { Footer } from './Footer';

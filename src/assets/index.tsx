@@ -1,20 +1,52 @@
 // Events
 import LCSLogoEvent from './events/lcs-logo-nobg.png';
 import LCSEvent from './events/lcs-banner.png';
-import CollisionEvent from './events/collision-event.png';
+import CollisionEvent from './events/collision-event.jpg';
 import CollisionLogo from './events/collision-logo.png';
-import HawkHacksEvent from './events/hawkhacks-event.png'
+import HawkHacksEvent from './events/hawkhacks-event.jpg'
 import HawkHacksLogo from './events/hawkhacks-logo.svg';
 import BBQEvent from './events/bbq.jpg';
+import SpurHacksEvent from './events/spurhacks-event.jpg';
+
+// HawkHacks case study
+import HawkHacksKeyArt from './events/hawkhacks/key-art.jpg';
+import HawkHacksAuditorium from './events/hawkhacks/auditorium.jpg';
+import HawkHacksFood from './events/hawkhacks/food.jpg';
+import HawkHacksLectureHall from './events/hawkhacks/lecture-hall.jpg';
+import HawkHacksAtrium from './events/hawkhacks/atrium.jpg';
+
+// SpurHacks feature
+import SpurHacksStage from './spurhacks/stage.jpg';
+import SpurHacksDoors from './spurhacks/doors.jpg';
+import SpurHacksWayfinding from './spurhacks/wayfinding.jpg';
+import SpurHacksCampus from './spurhacks/campus.jpg';
+
+// Hero reel
+import HeroSkyline from './hero/skyline.jpg';
+import HeroSpurKonferSign from './hero/spur-konfer-sign.jpg';
+
+// Gallery: thumbnails for the grid, full size for the viewer
+import YachtSkylineThumb from './gallery/thumb/near-yacht-1.jpg';
+import YachtSkylineFull from './gallery/full/near-yacht-1.jpg';
+import YachtDeckThumb from './gallery/thumb/near-yacht-3.jpg';
+import YachtDeckFull from './gallery/full/near-yacht-3.jpg';
+import YachtLoungeThumb from './gallery/thumb/near-yacht-5.jpg';
+import YachtLoungeFull from './gallery/full/near-yacht-5.jpg';
+import BBQCarsThumb from './gallery/thumb/spur-bbq-1.jpg';
+import BBQCarsFull from './gallery/full/spur-bbq-1.jpg';
+import BBQPitchesThumb from './gallery/thumb/spur-bbq-3.jpg';
+import BBQPitchesFull from './gallery/full/spur-bbq-3.jpg';
+import BBQTableThumb from './gallery/thumb/spur-bbq-4.jpg';
+import BBQTableFull from './gallery/full/spur-bbq-4.jpg';
+import BBQBeaverTailsThumb from './gallery/thumb/spur-bbq-6.jpg';
+import BBQBeaverTailsFull from './gallery/full/spur-bbq-6.jpg';
 
 // Expertise
-import PartiesImage from './expertise/parties.png';
-import ConferencesImage from './expertise/conferences.png';
-import NetworkingImage from './expertise/networking.png';
-import SeminarsImage from './expertise/seminars.png';
+import PartiesImage from './expertise/parties.jpg';
+import NetworkingImage from './expertise/networking.jpg';
+const ConferencesImage = HawkHacksAuditorium;
+const SeminarsImage = HawkHacksLectureHall;
 
-// Hero
-import HeroImage from './hero/hero.png';
 import BrandLogo from './brand/logo.svg';
 
 // Partners
@@ -54,6 +86,40 @@ export {
     HawkHacksEvent,
     LCSLogoEvent,
     BBQEvent,
+    SpurHacksEvent,
+
+    // HawkHacks case study
+    HawkHacksKeyArt,
+    HawkHacksAuditorium,
+    HawkHacksFood,
+    HawkHacksLectureHall,
+    HawkHacksAtrium,
+
+    // SpurHacks feature
+    SpurHacksStage,
+    SpurHacksDoors,
+    SpurHacksWayfinding,
+    SpurHacksCampus,
+
+    // Hero reel
+    HeroSkyline,
+    HeroSpurKonferSign,
+
+    // Gallery
+    YachtSkylineThumb,
+    YachtSkylineFull,
+    YachtDeckThumb,
+    YachtDeckFull,
+    YachtLoungeThumb,
+    YachtLoungeFull,
+    BBQCarsThumb,
+    BBQCarsFull,
+    BBQPitchesThumb,
+    BBQPitchesFull,
+    BBQTableThumb,
+    BBQTableFull,
+    BBQBeaverTailsThumb,
+    BBQBeaverTailsFull,
 
     // Expertise
     PartiesImage,
@@ -61,8 +127,6 @@ export {
     NetworkingImage,
     SeminarsImage,
 
-    // Hero
-    HeroImage,
     BrandLogo,
 
     // Partners
