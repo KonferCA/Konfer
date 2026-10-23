@@ -9,217 +9,81 @@ import {
     SPURBrand,
     WaterlooBlockchain,
 } from '@assets';
-import Tippy from '@tippyjs/react';
-import 'tippy.js/dist/tippy.css';
-import 'tippy.js/themes/material.css';
 
-const partnerInfo = {
-    hawkhacks: {
-        name: "HawkHacks",
-        website: "https://hawkhacks.ca"
-    },
-    avalanche: {
-        name: "Avalanche",
-        website: "https://www.avax.network"
-    },
-    nearToronto: {
-        name: "NEAR Toronto",
-        website: "https://near.org"
-    },
-    spur: {
-        name: "SPUR Innovation Centre",
-        website: "https://spurinnovation.com"
-    },
-    lcs: {
-        name: "Laurier Computing Society",
-        website: "https://lauriercs.ca"
-    },
-    waterlooBlockchain: {
-        name: "Waterloo Blockchain",
-        website: "https://www.waterlooblockchain.ca/"
-    },
-    blockchainFuturist: {
-        name: "Blockchain Futurist",
-        website: 'https://www.futuristconference.com/'
-    },
-    ethToronto: {
-        name: "ETH Toronto",
-        website: "https://www.ethtoronto.ca"
-    },
-    ethWomen: {
-        name: "ETH Women",
-        website: "https://ethwomen.com"
-    }
-};
-
-interface TooltipContentProps {
+interface Partner {
     name: string;
     website: string;
+    logo: string;
+    // Tailwind height class; square marks need more height than wordmarks to read at the same weight
+    size: string;
+    // How the logo is pushed to monochrome:
+    // flatten: single-colour art on transparency, rendered solid white
+    // invert: sticker art with a white outline, which inverts away against the dark background
+    // gray: badge marks that already read on dark
+    tone: 'flatten' | 'invert' | 'gray';
 }
 
-interface PartnerImageProps {
-    src: string;
-    info: { name: string; website: string };
-    className: string;
-}
+const partners: Partner[] = [
+    { name: 'HawkHacks', website: 'https://hawkhacks.ca', logo: HawkHacksBrand, size: 'h-8', tone: 'flatten' },
+    { name: 'Avalanche', website: 'https://www.avax.network', logo: AvalancheBrand, size: 'h-6', tone: 'flatten' },
+    { name: 'NEAR Toronto', website: 'https://near.org', logo: NEARTorontoBrand, size: 'h-11', tone: 'flatten' },
+    { name: 'SPUR Innovation Centre', website: 'https://spurinnovation.com', logo: SPURBrand, size: 'h-11', tone: 'flatten' },
+    { name: 'Laurier Computing Society', website: 'https://lauriercs.ca', logo: LCSLogo, size: 'h-12', tone: 'gray' },
+    { name: 'Waterloo Blockchain', website: 'https://www.waterlooblockchain.ca/', logo: WaterlooBlockchain, size: 'h-10', tone: 'flatten' },
+    { name: 'Blockchain Futurist', website: 'https://www.futuristconference.com/', logo: BlockchainFuturist, size: 'h-11', tone: 'invert' },
+    { name: 'ETH Toronto', website: 'https://www.ethtoronto.ca', logo: ETHTorontoLogo, size: 'h-14', tone: 'flatten' },
+    { name: 'ETH Women', website: 'https://ethwomen.com', logo: ETHWomenLogo, size: 'h-10', tone: 'flatten' },
+];
 
-const TooltipContent = ({ name, website }: TooltipContentProps) => (
-    <div className="text-center">
-        <div className="font-bold mb-1">{name}</div>
-        <div className="text-sm text-blue-300">
-            <a href={website} target="_blank" rel="noopener noreferrer">
-                {website}
-            </a>
-        </div>
-    </div>
-);
+const toneClass: Record<Partner['tone'], string> = {
+    flatten: 'brightness-0 invert',
+    invert: 'grayscale invert',
+    gray: 'grayscale',
+};
 
-const PartnerImage = ({ src, info, className }: PartnerImageProps) => (
-    <Tippy 
-        content={<TooltipContent name={info.name} website={info.website} />}
-        theme="material"
-        placement="top"
-        arrow={true}
-        duration={200}
-        className="partner-tooltip"
-        interactive={true}
+const LogoRow = ({ hidden = false }: { hidden?: boolean }) => (
+    <ul
+        aria-hidden={hidden || undefined}
+        className="flex shrink-0 items-center gap-16 pr-16 motion-reduce:flex-wrap motion-reduce:justify-center motion-reduce:gap-y-10 motion-reduce:pr-0 md:gap-24 md:pr-24"
     >
-        <img src={src} className={className} />
-    </Tippy>
+        {partners.map((partner) => (
+            <li key={partner.name} className="shrink-0">
+                <a
+                    href={partner.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    tabIndex={hidden ? -1 : undefined}
+                    className="group block rounded-md"
+                >
+                    <img
+                        src={partner.logo}
+                        alt={hidden ? '' : partner.name}
+                        loading="lazy"
+                        decoding="async"
+                        className={`${partner.size} w-auto object-contain opacity-55 transition-opacity duration-200 group-hover:opacity-100 ${toneClass[partner.tone]}`}
+                    />
+                </a>
+            </li>
+        ))}
+    </ul>
 );
 
 const Partners = () => {
     return (
-        <section id="partners" className="px-4 md:px-8 lg:px-16 xl:px-24">
-            <h1 className="text-4xl font-bold text-center mb-12">
-                Partners
-            </h1>
-            
-            <div className="max-w-7xl mx-auto">
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-8 lg:gap-x-16 gap-y-12 mb-12">
-                    <div className="w-full flex justify-center">
-                        <PartnerImage 
-                            src={HawkHacksBrand} 
-                            info={partnerInfo.hawkhacks}
-                            className="grayscale w-[140px] sm:w-[180px] lg:w-[240px] hover:grayscale-0 transition-all duration-300"
-                        />
-                    </div>
-                    <div className="w-full flex justify-center">
-                        <PartnerImage 
-                            src={AvalancheBrand} 
-                            info={partnerInfo.avalanche}
-                            className="grayscale w-[120px] sm:w-[150px] lg:w-[200px] hover:grayscale-0 transition-all duration-300"
-                        />
-                    </div>
-                    <div className="w-full flex justify-center">
-                        <PartnerImage 
-                            src={NEARTorontoBrand} 
-                            info={partnerInfo.nearToronto}
-                            className="grayscale w-[130px] sm:w-[170px] lg:w-[220px] hover:grayscale-0 transition-all duration-300"
-                        />
-                    </div>
-                    <div className="w-full flex justify-center">
-                        <PartnerImage 
-                            src={SPURBrand} 
-                            info={partnerInfo.spur}
-                            className="grayscale w-[120px] sm:w-[150px] lg:w-[200px] hover:grayscale-0 transition-all duration-300"
-                        />
-                    </div>
-                </div>
+        <section id="partners" aria-labelledby="partners-heading" className="border-y border-ink-line py-14 md:py-16">
+            <h2 id="partners-heading" className="mx-auto max-w-page px-5 text-[15px] text-paper-muted md:px-8">
+                Partners and communities we’ve worked with
+            </h2>
 
-                <div className="bg-[#0E0E0E] rounded-2xl p-8 lg:p-12">
-                    <h2 className="text-3xl text-center font-bold mb-8 lg:mb-12">
-                        Community partners
-                    </h2>
-
-                    <div className="hidden lg:grid lg:grid-cols-5 lg:gap-x-12 lg:place-items-center">
-                        <PartnerImage 
-                            src={LCSLogo} 
-                            info={partnerInfo.lcs}
-                            className="w-[90px] hover:scale-110 transition-all duration-300"
-                        />
-                        <PartnerImage 
-                            src={WaterlooBlockchain} 
-                            info={partnerInfo.waterlooBlockchain}
-                            className="w-[80px] hover:scale-110 transition-all duration-300"
-                        />
-                        <PartnerImage 
-                            src={BlockchainFuturist}
-                            info={partnerInfo.blockchainFuturist}
-                            className="w-[300px] hover:scale-110 transition-all duration-300"
-                        />
-                        <PartnerImage 
-                            src={ETHTorontoLogo} 
-                            info={partnerInfo.ethToronto}
-                            className="w-[300px] hover:scale-110 transition-all duration-300"
-                        />
-                        <PartnerImage 
-                            src={ETHWomenLogo} 
-                            info={partnerInfo.ethWomen}
-                            className="w-[250px] hover:scale-110 transition-all duration-300"
-                        />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-8 place-items-center lg:hidden">
-                        <PartnerImage 
-                            src={LCSLogo} 
-                            info={partnerInfo.lcs}
-                            className="w-[60px] sm:w-[70px] hover:scale-110 transition-all duration-300"
-                        />
-                        <PartnerImage 
-                            src={WaterlooBlockchain} 
-                            info={partnerInfo.waterlooBlockchain}
-                            className="w-[50px] sm:w-[60px] hover:scale-110 transition-all duration-300"
-                        />
-                        <PartnerImage 
-                            src={BlockchainFuturist}
-                            info={partnerInfo.blockchainFuturist}
-                            className="w-[180px] sm:w-[220px] hover:scale-110 transition-all duration-300"
-                        />
-                        <PartnerImage 
-                            src={ETHTorontoLogo} 
-                            info={partnerInfo.ethToronto}
-                            className="w-[180px] sm:w-[220px] hover:scale-110 transition-all duration-300"
-                        />
-                        <PartnerImage 
-                            src={ETHWomenLogo} 
-                            info={partnerInfo.ethWomen}
-                            className="col-span-2 w-[150px] sm:w-[180px] hover:scale-110 transition-all duration-300"
-                        />
+            {/* Two identical rows translate by -50% for a seamless loop; hovering pauses so logos can be clicked */}
+            <div className="group/marquee mt-10 overflow-hidden mask-x-from-85% mask-x-to-100%">
+                <div className="flex w-max animate-[marquee_45s_linear_infinite] group-hover/marquee:[animation-play-state:paused] motion-reduce:w-auto motion-reduce:animate-none motion-reduce:justify-center motion-reduce:px-5">
+                    <LogoRow />
+                    <div className="contents motion-reduce:hidden">
+                        <LogoRow hidden />
                     </div>
                 </div>
             </div>
-
-
-            <style>{`
-                .partner-tooltip {
-                    background-color: #1a1a1a !important;
-                    border: 1px solid #333 !important;
-                    padding: 0 !important;
-                    border-radius: 16px !important;
-                    max-width: 300px !important;
-                }
-                
-                .tippy-box {
-                    border-radius: 16px !important;
-                }
-
-                .tippy-content {
-                    border-radius: 15px !important;
-                }
-                
-                .tippy-arrow {
-                    color: #1a1a1a !important;
-                }
-
-                .tippy-box[data-placement^='top'] > .tippy-arrow::before {
-                    border-radius: 0 !important;
-                }
-
-                .partner-tooltip a:hover {
-                    text-decoration: underline;
-                }
-            `}</style>
         </section>
     );
 };

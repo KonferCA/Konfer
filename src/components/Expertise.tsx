@@ -1,40 +1,113 @@
-import { PartiesImage, ConferencesImage, NetworkingImage, SeminarsImage } from '@assets'; 
+import { useRef } from 'react';
+import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from 'motion/react';
+import { PartiesImage, ConferencesImage, NetworkingImage, SeminarsImage } from '@assets';
+import { Reveal } from './Reveal';
 
 const expertiseData = [
-    { title: 'PARTIES', image: PartiesImage },
-    { title: 'CONFERENCES', image: ConferencesImage },
-    { title: 'NETWORKING', image: NetworkingImage },
-    { title: 'SEMINARS', image: SeminarsImage },
+    {
+        title: 'Parties',
+        description: 'Yacht parties, after-parties and community socials, planned down to the guest list.',
+        tags: ['Yacht parties', 'After-parties', 'Socials'],
+        image: PartiesImage,
+        surface: 'bg-ink-raised text-paper',
+        muted: 'text-paper-muted',
+    },
+    {
+        title: 'Conferences',
+        description: 'Programs, speakers and sponsors under one roof, run on schedule.',
+        tags: ['Hackathons', 'Case competitions', 'Keynotes'],
+        image: ConferencesImage,
+        surface: 'bg-[#181B21] text-paper',
+        muted: 'text-paper-muted',
+    },
+    {
+        title: 'Networking',
+        description: 'Rooms where companies meet the talent they want to hire, and students meet the teams they want to join.',
+        tags: ['Mixers', 'Recruiting nights', 'Panels'],
+        image: NetworkingImage,
+        surface: 'bg-[#1D2129] text-paper',
+        muted: 'text-paper-muted',
+    },
+    {
+        title: 'Seminars',
+        description: 'Workshops and talks that teach something useful, run by people who do the work.',
+        tags: ['Workshops', 'Tech talks', 'Fireside chats'],
+        image: SeminarsImage,
+        surface: 'bg-azure text-ink',
+        muted: 'text-ink/75',
+    },
 ];
 
-const Expertise = () => {
+interface CardProps {
+    item: (typeof expertiseData)[number];
+    index: number;
+    progress: MotionValue<number>;
+    reduceMotion: boolean;
+}
+
+const Card = ({ item, index, progress, reduceMotion }: CardProps) => {
+    const count = expertiseData.length;
+    // Each card shrinks a little once the cards after it start stacking on top
+    const targetScale = 1 - (count - 1 - index) * 0.04;
+    const transform = useTransform(progress, [index / count, 1], [`scale(1)`, `scale(${targetScale})`]);
+
     return (
-        <section className="w-full px-4 md:px-8 lg:px-16 xl:px-24">
-            <div className="mx-auto px-4 md:px-8 lg:px-16 xl:px-24">
-                <h2 className="font-inter font-extrabold text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-8xl 2xl:text-[128px] leading-[1.1] py-2 bg-gradient-to-r from-[#F8D0AA] to-[#AAAAAA] text-transparent bg-clip-text">
-                    We Bridge Innovation.
-                </h2>
-
-                <p className="font-inter font-medium text-xl md:text-2xl lg:text-[28px] text-white mt-4 mb-12">
-                    By organizing high-impact events that connect innovative businesses to ambitious students and young professionals.
-                </p>
-
-                <h3 className="font-inter font-normal text-lg md:text-xl lg:text-[24px] text-white mb-8">
-                    Our Expertise
-                </h3>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {expertiseData.map((item, index) => (
-                        <div key={index} className="relative overflow-hidden rounded-lg h-[180px] sm:h-[250px] md:h-[300px] lg:h-[400px] xl:h-[500px]">
-                            <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
-                            <div className="absolute inset-0 bg-expertise-gradient bg-opacity-40 flex items-end justify-center p-4">
-                                <h4 className="font-montserrat font-bold text-xl md:text-2xl lg:text-[24px] xl:text-3xl text-white text-center">
-                                    {item.title}
-                                </h4>
-                            </div>
-                        </div>
-                    ))}
+        <div
+            // The last card needs no runway after it, so it drops the min-height
+            className={`sticky flex items-start justify-center ${
+                index < expertiseData.length - 1 ? 'min-h-[70vh] md:min-h-[80vh]' : 'pb-4'
+            }`}
+            // Offsetting each card's sticky top leaves the edges of earlier cards visible
+            style={{ top: `calc(5.5rem + ${index * 1.25}rem)` }}
+        >
+            <motion.article
+                className={`grid w-full origin-top grid-cols-1 gap-5 overflow-hidden rounded-2xl p-5 shadow-[0_-12px_40px_rgb(5_6_8/0.5)] md:grid-cols-[minmax(0,1fr)_minmax(0,28rem)] md:gap-10 md:p-10 lg:p-12 ${item.surface}`}
+                style={reduceMotion ? undefined : { transform }}
+            >
+                <div className="flex flex-col">
+                    <h3 className="font-display-wide text-3xl font-extrabold tracking-tight uppercase sm:text-4xl md:text-6xl">
+                        {item.title}
+                    </h3>
+                    <p className={`mt-4 max-w-[40ch] text-base leading-relaxed md:mt-6 md:text-xl ${item.muted}`}>
+                        {item.description}
+                    </p>
+                    <ul className="mt-6 flex flex-wrap gap-2 md:mt-auto md:pt-10">
+                        {item.tags.map((tag) => (
+                            <li key={tag} className="rounded-full border border-current/20 px-3 py-1 text-sm">
+                                {tag}
+                            </li>
+                        ))}
+                    </ul>
                 </div>
+                <img
+                    src={item.image}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    className="order-first aspect-[3/2] w-full rounded-xl object-cover md:order-none md:aspect-[4/3]"
+                />
+            </motion.article>
+        </div>
+    );
+};
+
+const Expertise = () => {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const reduceMotion = useReducedMotion() ?? false;
+    const { scrollYProgress } = useScroll({ target: containerRef, offset: ['start start', 'end end'] });
+
+    return (
+        <section aria-labelledby="expertise-heading" className="mx-auto max-w-page px-5 pb-12 md:px-8 md:pb-24">
+            <Reveal>
+                <h2 id="expertise-heading" className="font-display text-5xl font-bold tracking-tight md:text-6xl">
+                    What we run
+                </h2>
+            </Reveal>
+
+            <div ref={containerRef} className="mt-10 md:mt-14">
+                {expertiseData.map((item, i) => (
+                    <Card key={item.title} item={item} index={i} progress={scrollYProgress} reduceMotion={reduceMotion} />
+                ))}
             </div>
         </section>
     );

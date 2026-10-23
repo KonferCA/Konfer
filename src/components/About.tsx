@@ -1,74 +1,84 @@
-const About = () => {
+import { useRef } from 'react';
+import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from 'motion/react';
+import { Reveal } from './Reveal';
+
+const statement =
+    'We source, organize and execute high-impact initiatives for companies and groups. Yacht parties, case competitions, hackathons, workshops or networking events: we handle sponsorship, marketing, operations and logistics at every stage.';
+
+// Words that carry the pitch get the accent once lit
+const accentWords = new Set(['high-impact', 'initiatives']);
+
+const pillars = [
+    {
+        title: 'Expertise',
+        body: 'We’ve executed some of the largest initiatives in Canada, from high-energy hackathons and case competitions to exclusive yacht parties and networking events.',
+    },
+    {
+        title: 'Culture',
+        body: 'We take pride in having fun with our work while delivering outstanding results. Our team is fueled by a passion for helping people grow.',
+    },
+    {
+        title: 'Values',
+        body: 'Precision, creativity and professionalism guide everything we do. Building lasting relationships between companies, talent and communities is at our core.',
+    },
+    {
+        title: 'Resources',
+        body: 'Our network spans top universities, premier venues and influential organizations, giving us access to the people and spaces that make events work.',
+    },
+];
+
+const Word = ({ word, range, progress }: { word: string; range: [number, number]; progress: MotionValue<number> }) => {
+    const opacity = useTransform(progress, range, [0.18, 1]);
+    const accent = accentWords.has(word.replace(/[.,:]/g, ''));
+
     return (
-        <section
-            id="about-us"
-            className="text-white px-4 md:px-8 lg:px-16 xl:px-24"
-        >
-            <div className="max-w-[1200px] mx-auto">
-                <h1 className="text-4xl font-bold mb-6">
-                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#5084F5] to-[#00FFCC]">
-                        About Konfer
-                    </span>
-                </h1>
+        <motion.span style={{ opacity }} className={accent ? 'text-azure-soft' : undefined}>
+            {word}{' '}
+        </motion.span>
+    );
+};
 
-                <p className="text-white mb-12 text-lg">
-                    We specialize in sourcing, organizing, and executing
-                    high-impact initiatives for companies and groups. Yacht
-                    parties, case competitions, hackathons, workshops, or
-                    networking events - we bring creativity and precision to
-                    every stage of the planning process. Our deep expertise in
-                    event planning, sponsorship and partnership acquisition,
-                    marketing, outreach, operations, logistics, and audience
-                    engagement ensures every initiative is impactful, memorable,
-                    and flawlessly executed.
-                </p>
+const About = () => {
+    const statementRef = useRef<HTMLParagraphElement>(null);
+    const reduceMotion = useReducedMotion();
+    // Lights words in reading order while the paragraph travels up through the viewport
+    const { scrollYProgress } = useScroll({ target: statementRef, offset: ['start 0.85', 'end 0.45'] });
+    const words = statement.split(' ');
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto ml-0">
-                    <div>
-                        <h2 className="text-3xl font-bold mb-4">Expertise</h2>
-                        <p className="text-white text-lg">
-                            We’ve successfully executed some of the largest
-                            initiatives in Canada; from high-energy hackathons
-                            and dynamic case competitions to exclusive yacht
-                            parties and engaging networking events.
-                        </p>
-                    </div>
+    return (
+        <section id="about-us" aria-labelledby="about-heading" className="mx-auto max-w-page px-5 py-24 md:px-8 md:py-36">
+            <Reveal>
+                <h2 id="about-heading" className="text-lg text-paper-muted">
+                    About Konfer
+                </h2>
+            </Reveal>
 
-                    <div>
-                        <h2 className="text-3xl font-bold mb-4">Culture</h2>
-                        <p className="text-white text-lg">
-                            We take pride in having fun with our work, while
-                            delivering outstanding results for our clients and
-                            communities - our team is fueled by a passion for
-                            helping individuals grow.
-                        </p>
-                    </div>
+            <p
+                ref={statementRef}
+                className="font-display mt-6 max-w-[24ch] text-[clamp(2rem,4.6vw,4.25rem)] leading-[1.08] font-semibold tracking-tight"
+            >
+                {reduceMotion
+                    ? statement
+                    : words.map((word, i) => (
+                          <Word
+                              key={i}
+                              word={word}
+                              range={[i / words.length, (i + 1) / words.length]}
+                              progress={scrollYProgress}
+                          />
+                      ))}
+            </p>
 
-                    <div>
-                        <h2 className="text-3xl font-bold mb-4">Values</h2>
-                        <p className="text-white text-lg">
-                            We embrace fresh ideas and push boundaries in every
-                            initiative we create. Precision, creativity, and
-                            professionalism guide everything we do. Building
-                            strong, lasting relationships between companies,
-                            talent, and communities is at our core.
-                        </p>
-                    </div>
-
-                    <div>
-                        <h2 className="text-3xl font-bold mb-4">Resources</h2>
-                        <p className="text-white text-lg">
-                            Our extensive network spans top universities,
-                            premier venues, and industry-leading influential
-                            organizations, giving us unmatched access to the
-                            people and spaces that make events extraordinary.
-                        </p>
-                    </div>
-                </div>
-            </div>
+            <dl className="mt-20 grid gap-x-8 gap-y-12 sm:grid-cols-2 md:mt-28 lg:grid-cols-4">
+                {pillars.map((pillar, i) => (
+                    <Reveal key={pillar.title} delay={i * 0.06} className="border-t border-white/15 pt-6">
+                        <dt className="font-display text-2xl font-semibold tracking-tight">{pillar.title}</dt>
+                        <dd className="mt-3 leading-relaxed text-paper-muted">{pillar.body}</dd>
+                    </Reveal>
+                ))}
+            </dl>
         </section>
     );
 };
 
 export { About };
-
