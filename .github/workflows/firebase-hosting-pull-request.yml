@@ -11,6 +11,7 @@ on:
       - main
 jobs:
   build_and_preview:
+    if: github.ref == 'refs/heads/live' || github.base_ref == 'live' || github.event_name == 'push' && github.ref == 'refs/heads/live'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
