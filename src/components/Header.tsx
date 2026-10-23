@@ -1,143 +1,95 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-scroll';
-import { motion, AnimatePresence } from 'framer-motion';
-import { IoCloseOutline } from 'react-icons/io5';
-import { FaXTwitter, FaInstagram, FaLinkedin } from 'react-icons/fa6';
-import { BsChat } from 'react-icons/bs';
+import { useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion, useMotionValueEvent, useScroll } from 'motion/react';
+import { List, X } from '@phosphor-icons/react';
+import { CONTACT_HREF, NAV_LINKS, SOCIAL_LINKS } from '@utils/site';
 
 const Header = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
+    const [hidden, setHidden] = useState(false);
+    const menuRef = useRef<HTMLDivElement>(null);
+    const { scrollY } = useScroll();
+
+    // Only re-renders when crossing the threshold, not on every scroll frame
+    useMotionValueEvent(scrollY, 'change', (y) => {
+        const next = y > 24;
+        if (next !== scrolled) setScrolled(next);
+
+        // Tuck away while reading down the page, come back on any upward scroll
+        const previous = scrollY.getPrevious() ?? 0;
+        const nextHidden = y > 400 && y > previous;
+        if (Math.abs(y - previous) > 4 && nextHidden !== hidden) setHidden(nextHidden);
+    });
 
     useEffect(() => {
-        const handleScroll = () => {
-            setScrolled(window.scrollY > 20);
+        if (!isOpen) return;
+
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') setIsOpen(false);
+            if (e.key !== 'Tab' || !menuRef.current) return;
+
+            // Keep keyboard focus inside the open menu
+            const focusable = menuRef.current.querySelectorAll<HTMLElement>('a[href], button');
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (e.shiftKey && document.activeElement === first) {
+                e.preventDefault();
+                last.focus();
+            } else if (!e.shiftKey && document.activeElement === last) {
+                e.preventDefault();
+                first.focus();
+            }
         };
 
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+        document.body.style.overflow = 'hidden';
+        window.addEventListener('keydown', onKeyDown);
 
-    const menuVariants = {
-        closed: {
-            opacity: 0,
-            x: '100%',
-            transition: {
-                type: 'tween',
-                duration: 0.3,
-            },
-        },
-        open: {
-            opacity: 1,
-            x: 0,
-            transition: {
-                type: 'tween',
-                duration: 0.3,
-            },
-        },
-    };
+        return () => {
+            document.body.style.overflow = '';
+            window.removeEventListener('keydown', onKeyDown);
+        };
+    }, [isOpen]);
 
-    const handleLinkClick = () => {
-        setIsOpen(false);
-    };
-
-    const ContactButton = () => (
-        <a
-            href="mailto:hello@konfer.ca"
-            className="
-                inline-flex items-center justify-center
-                text-white font-semibold
-                h-10
-                px-4
-                rounded-3xl
-                bg-gradient-to-r from-azure to-celestial-blue
-                shadow-lg shadow-celestial-blue/20
-                hover:shadow-xl hover:shadow-celestial-blue/30
-                hover:translate-y-[-2px]
-                active:translate-y-[1px]
-                font-inter tracking-wide
-                transition-all duration-200
-                border border-white/10
-                backdrop-blur-sm
-                group
-            "
-        >
-            Contact Us
-            <BsChat className="ml-2 mb-0.5 group-hover:scale-110 transition-transform duration-200" />
-        </a>
-    );
+    const close = () => setIsOpen(false);
 
     return (
         <>
             <header
-                className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-black/80 backdrop-blur-md' : 'bg-transparent'}`}
+                // Header stays put on keyboard focus so tabbing never lands on an off-screen link
+                onFocusCapture={() => setHidden(false)}
+                className={`fixed inset-x-0 top-0 z-40 border-b transition-[background-color,border-color,translate] duration-300 ease-out ${
+                    hidden ? '-translate-y-full' : 'translate-y-0'
+                } ${
+                    scrolled
+                        ? 'border-ink-line bg-ink/80 backdrop-blur-md'
+                        : 'border-transparent bg-transparent'
+                }`}
             >
-                <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                        <Link
-                            to="hero"
-                            smooth={true}
-                            duration={500}
-                            offset={-100}
-                            className="cursor-pointer"
-                        >
-                            <img
-                                src="/konfer_logo.svg"
-                                alt="Konfer"
-                                className="h-8"
-                            />
-                        </Link>
-                    </div>
+                <div className="mx-auto flex h-16 max-w-page items-center justify-between px-5 md:px-8">
+                    <a href="#hero" aria-label="Konfer, back to top" className="rounded-md">
+                        <img src="/konfer_logo.svg" alt="" width={190} height={39} className="h-7 w-auto" />
+                    </a>
 
-                    <nav className="hidden md:flex items-center gap-8">
-                        <Link
-                            to="past-events"
-                            smooth={true}
-                            duration={500}
-                            offset={-100}
-                            className="text-white hover:text-blue-400 transition-colors cursor-pointer"
-                        >
-                            Our Work
-                        </Link>
-                        <Link
-                            to="about-us"
-                            smooth={true}
-                            duration={500}
-                            offset={-100}
-                            className="text-white hover:text-blue-400 transition-colors cursor-pointer"
-                        >
-                            About Us
-                        </Link>
-                        <Link
-                            to="team"
-                            smooth={true}
-                            duration={500}
-                            offset={-100}
-                            className="text-white hover:text-blue-400 transition-colors cursor-pointer"
-                        >
-                            Team
-                        </Link>
-                        <Link
-                            to="partners"
-                            smooth={true}
-                            duration={500}
-                            offset={-100}
-                            className="text-white hover:text-blue-400 transition-colors cursor-pointer"
-                        >
-                            Partners
-                        </Link>
-                        <ContactButton />
+                    <nav aria-label="Primary" className="hidden items-center gap-8 md:flex">
+                        {NAV_LINKS.map((link) => (
+                            <a key={link.href} href={link.href} className="link-muted rounded-sm text-[15px]">
+                                {link.label}
+                            </a>
+                        ))}
+                        <a href={CONTACT_HREF} className="btn btn-primary h-10 px-4">
+                            Get in Touch
+                        </a>
                     </nav>
 
                     <button
+                        type="button"
                         onClick={() => setIsOpen(true)}
-                        className="md:hidden text-white p-2"
+                        aria-label="Open menu"
+                        aria-expanded={isOpen}
+                        aria-controls="mobile-menu"
+                        className="-mr-2 grid size-11 place-items-center rounded-full text-paper md:hidden"
                     >
-                        <div className="space-y-1.5">
-                            <div className="w-6 h-0.5 bg-white"></div>
-                            <div className="w-6 h-0.5 bg-white"></div>
-                            <div className="w-6 h-0.5 bg-white"></div>
-                        </div>
+                        <List size={24} />
                     </button>
                 </div>
             </header>
@@ -145,129 +97,72 @@ const Header = () => {
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
-                        initial="closed"
-                        animate="open"
-                        exit="closed"
-                        variants={menuVariants}
-                        className="fixed inset-0 bg-[#1C1C1C] z-50 md:hidden"
+                        ref={menuRef}
+                        id="mobile-menu"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label="Menu"
+                        className="fixed inset-0 z-50 flex flex-col bg-ink md:hidden"
+                        initial={{ opacity: 0, transform: 'translateY(-12px)' }}
+                        animate={{
+                            opacity: 1,
+                            transform: 'translateY(0px)',
+                            transition: { duration: 0.35, ease: [0.32, 0.72, 0, 1] },
+                        }}
+                        exit={{
+                            opacity: 0,
+                            transform: 'translateY(-8px)',
+                            transition: { duration: 0.18, ease: [0.23, 1, 0.32, 1] },
+                        }}
                     >
-                        <div className="flex flex-col h-full">
-                            <div className="flex justify-between items-center p-4">
-                                <Link
-                                    to="hero"
-                                    smooth={true}
-                                    duration={500}
-                                    offset={-100}
-                                    onClick={handleLinkClick}
-                                    className="cursor-pointer"
-                                >
-                                    <img
-                                        src="/konfer_logo.svg"
-                                        alt="Konfer"
-                                        className="h-8"
-                                    />
-                                </Link>
-                                <button
-                                    onClick={() => setIsOpen(false)}
-                                    className="text-white p-2"
-                                >
-                                    <IoCloseOutline size={32} />
-                                </button>
-                            </div>
+                        <div className="flex h-16 items-center justify-between px-5">
+                            <a href="#hero" onClick={close} aria-label="Konfer, back to top">
+                                <img src="/konfer_logo.svg" alt="" width={190} height={39} className="h-7 w-auto" />
+                            </a>
+                            <button
+                                type="button"
+                                onClick={close}
+                                aria-label="Close menu"
+                                autoFocus
+                                className="-mr-2 grid size-11 place-items-center rounded-full text-paper"
+                            >
+                                <X size={24} />
+                            </button>
+                        </div>
 
-                            <nav className="flex-1 flex flex-col px-8 pt-12 space-y-6">
-                                <Link
-                                    to="past-events"
-                                    smooth={true}
-                                    duration={500}
-                                    offset={-100}
-                                    onClick={handleLinkClick}
-                                    className="text-gray-300 text-2xl cursor-pointer"
+                        <nav aria-label="Mobile" className="flex flex-1 flex-col gap-1 px-5 pt-10">
+                            {NAV_LINKS.map((link, i) => (
+                                <motion.a
+                                    key={link.href}
+                                    href={link.href}
+                                    onClick={close}
+                                    className="font-display py-2 text-4xl font-semibold tracking-tight"
+                                    initial={{ opacity: 0, transform: 'translateY(12px)' }}
+                                    animate={{ opacity: 1, transform: 'translateY(0px)' }}
+                                    transition={{ duration: 0.4, delay: 0.08 + i * 0.05, ease: [0.23, 1, 0.32, 1] }}
                                 >
-                                    Our Work
-                                </Link>
-                                <Link
-                                    to="about-us"
-                                    smooth={true}
-                                    duration={500}
-                                    offset={-100}
-                                    onClick={handleLinkClick}
-                                    className="text-gray-300 text-2xl cursor-pointer"
-                                >
-                                    About Us
-                                </Link>
-                                <Link
-                                    to="team"
-                                    smooth={true}
-                                    duration={500}
-                                    offset={-100}
-                                    onClick={handleLinkClick}
-                                    className="text-gray-300 text-2xl cursor-pointer"
-                                >
-                                    Team
-                                </Link>
-                                <Link
-                                    to="partners"
-                                    smooth={true}
-                                    duration={500}
-                                    offset={-100}
-                                    onClick={handleLinkClick}
-                                    className="text-gray-300 text-2xl cursor-pointer"
-                                >
-                                    Partners
-                                </Link>
-                            </nav>
+                                    {link.label}
+                                </motion.a>
+                            ))}
+                        </nav>
 
-                            <div className="p-8 space-y-8">
-                                <div className="text-left ml-0">
-                                    <h2 className="text-white text-2xl mb-2 font-bold">
-                                        Ready to Innovate?
-                                    </h2>
+                        <div className="flex items-center justify-between gap-4 border-t border-ink-line px-5 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+                            <a href={CONTACT_HREF} className="btn btn-primary">
+                                Get in Touch
+                            </a>
+                            <div className="flex gap-1">
+                                {SOCIAL_LINKS.map(({ label, href, Icon }) => (
                                     <a
-                                        href="mailto:hello@konfer.ca"
-                                        className="
-                                            inline-flex items-center justify-center
-                                            text-white font-semibold
-                                            h-10
-                                            px-4
-                                            rounded-3xl
-                                            bg-gradient-to-r from-azure to-celestial-blue
-                                            shadow-lg shadow-celestial-blue/20
-                                            hover:shadow-xl hover:shadow-celestial-blue/30
-                                            hover:translate-y-[-2px]
-                                            active:translate-y-[1px]
-                                            font-inter tracking-wide
-                                            transition-all duration-200
-                                            border border-white/10
-                                            backdrop-blur-sm
-                                            group
-                                        "
+                                        key={href}
+                                        href={href}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        aria-label={label}
+                                        className="grid size-11 place-items-center rounded-full text-paper-muted"
                                     >
-                                        hello@konfer.ca
-                                        <BsChat className="ml-2 mb-0.5 group-hover:scale-110 transition-transform duration-200" />
+                                        <Icon size={22} />
                                     </a>
-                                </div>
-
-                                <div className="flex justify-left gap-6">
-                                    <a
-                                        href="https://x.com/Konferca"
-                                        className="text-white"
-                                    >
-                                        <FaXTwitter size={24} />
-                                    </a>
-                                    <a
-                                        href="https://instagram.com/konfer.ca/"
-                                        className="text-white"
-                                    >
-                                        <FaInstagram size={24} />
-                                    </a>
-                                    <a
-                                        href="https://linkedin.com/company/konferca/"
-                                        className="text-white"
-                                    >
-                                        <FaLinkedin size={24} />
-                                    </a>
-                                </div>
+                                ))}
                             </div>
                         </div>
                     </motion.div>

@@ -1,71 +1,218 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+@import 'tailwindcss';
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Tailwind v4 already gates `hover:` behind (hover: hover), so touch taps never stick */
 
-html, body {
-    max-width: 100%;
-    overflow-x: hidden;
-    margin: 0;
-    padding: 0;
+@theme {
+    --font-sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+
+    --color-ink: #0b0c0e;
+    --color-ink-raised: #14161a;
+    --color-ink-line: rgb(255 255 255 / 0.09);
+    --color-paper: #f2f3f5;
+    --color-paper-muted: #a1a7b0;
+    --color-azure: #5084f5;
+    --color-azure-soft: #8fb0fa;
+
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+    --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+    --container-page: 1320px;
 }
 
-html {
-    min-height: 100%;
+@layer base {
+    :root {
+        color-scheme: dark;
+        /* Kept out of @theme so it doesn't generate a clashing font-display utility */
+        --font-display: 'Archivo Variable', ui-sans-serif, system-ui, sans-serif;
+    }
+
+    html {
+        @apply bg-ink text-paper antialiased;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+        html {
+            scroll-behavior: smooth;
+        }
+    }
+
+    body {
+        @apply font-sans;
+        overflow-x: clip;
+    }
+
+    section[id] {
+        scroll-margin-top: 4.5rem;
+    }
+
+    h1,
+    h2,
+    h3 {
+        text-wrap: balance;
+    }
+
+    p {
+        text-wrap: pretty;
+    }
+
+    :focus-visible {
+        @apply outline-2 outline-offset-2 outline-azure;
+    }
+
+    ::selection {
+        @apply bg-azure/40 text-paper;
+    }
 }
 
-body {
-    @apply bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white;
-    font-family: 'Inter', sans-serif;
-    min-height: 100vh;
-    background-attachment: fixed;
-    background-repeat: no-repeat;
-    background-size: cover;
+/* Archivo's width axis gives the display face its poster-like stance */
+@utility font-display {
+    font-family: var(--font-display);
+    font-stretch: 112%;
 }
 
-@layer utilities {
-    .animate-fade-in {
-        animation: fadeIn 1s ease-out;
-    }
+@utility font-display-wide {
+    font-family: var(--font-display);
+    font-stretch: 125%;
+}
 
-    .animation-delay-300 {
-        animation-delay: 300ms;
-    }
+@utility btn {
+    @apply inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full px-5 text-[15px] font-medium whitespace-nowrap;
+    touch-action: manipulation;
+    transition:
+        transform 160ms var(--ease-out),
+        background-color 200ms ease,
+        color 200ms ease,
+        border-color 200ms ease;
 
-    .animation-delay-600 {
-        animation-delay: 600ms;
+    &:active {
+        transform: scale(0.97);
     }
+}
 
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
+@utility btn-primary {
+    @apply bg-paper text-ink hover:bg-white;
+}
+
+@utility btn-ghost {
+    @apply border border-white/20 text-paper hover:border-white/40 hover:bg-white/5;
+}
+
+@utility link-muted {
+    @apply text-paper-muted transition-colors duration-200 hover:text-paper;
+}
+
+/* Hero headline: each line slides up from behind a mask, once */
+@utility line-reveal {
+    display: block;
+    animation: line-reveal 1000ms var(--ease-out) both;
+    animation-delay: var(--delay, 0ms);
+}
+
+@utility rise {
+    animation: rise 900ms var(--ease-out) both;
+    animation-delay: var(--delay, 0ms);
+}
+
+@keyframes line-reveal {
+    from {
+        transform: translateY(105%);
     }
+}
 
-    .hover-underline-animation {
-        display: inline-block;
-        position: relative;
+@keyframes rise {
+    from {
+        opacity: 0;
+        transform: translateY(24px);
     }
+}
 
-    .hover-underline-animation::after {
-        content: '';
-        position: absolute;
-        width: 100%;
+@keyframes fade {
+    from {
+        opacity: 0;
+    }
+}
+
+/* Slide timer for the hero reel: constant motion, so linear */
+@keyframes progress {
+    from {
         transform: scaleX(0);
-        height: 1px;
-        bottom: 0;
-        left: 0;
-        background-color: currentColor;
-        transform-origin: bottom right;
-        transition: transform 0.3s ease-out;
     }
-
-    .hover-underline-animation:hover::after {
+    to {
         transform: scaleX(1);
-        transform-origin: bottom left;
     }
 }
 
-::selection {
-    background-color: rgba(139, 92, 246, 0.3);
+@keyframes marquee {
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .line-reveal,
+    .rise {
+        animation-name: fade;
+        animation-duration: 400ms;
+    }
+}
+
+/* Native <dialog>: a centered modal, so it scales from center */
+.member-dialog {
+    transition:
+        opacity 220ms var(--ease-out),
+        transform 220ms var(--ease-out);
+}
+
+.member-dialog::backdrop {
+    background: rgb(5 6 8 / 0.7);
+    backdrop-filter: blur(4px);
+    transition: opacity 220ms ease;
+}
+
+@starting-style {
+    .member-dialog[open] {
+        opacity: 0;
+        transform: scale(0.96);
+    }
+
+    .member-dialog[open]::backdrop {
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .member-dialog {
+        transition: opacity 220ms ease;
+    }
+}
+
+/* Film grain on a fixed, non-interactive layer so scrolling never repaints it */
+.grain {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Pulses travelling along the bridge connectors (container query units = track length) */
+@keyframes flow-x {
+    from {
+        transform: translateX(-6px);
+    }
+    to {
+        transform: translateX(100cqw);
+    }
+}
+
+@keyframes flow-y {
+    from {
+        transform: translateY(-6px);
+    }
+    to {
+        transform: translateY(100cqh);
+    }
 }

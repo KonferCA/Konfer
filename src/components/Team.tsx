@@ -1,23 +1,18 @@
-import {
-    Aidan,
-    Amir,
-    Arnav,
-    Colman,
-    Jackie,
-    Juan,
-    Max,
-    Mobi,
-    Nausher,
-    Nish,
-    Shakib,
-    Vincenzo,
-} from '@assets';
-import Tippy from '@tippyjs/react';
-import 'tippy.js/dist/tippy.css';
-import 'tippy.js/themes/material.css';
-import { FaLinkedin, FaGlobe } from 'react-icons/fa6';
+import { useEffect, useRef, useState } from 'react';
+import { ArrowUpRight, X } from '@phosphor-icons/react';
+import { Aidan, Amir, Arnav, Colman, Jackie, Juan, Max, Mobi, Nausher, Nish, Shakib, Vincenzo } from '@assets';
+import { Reveal } from './Reveal';
 
-const teamMembers = [
+interface TeamMember {
+    name: string;
+    title: string;
+    image: string;
+    linkedin?: string;
+    website?: string;
+    bio?: string;
+}
+
+const teamMembers: TeamMember[] = [
     {
         name: 'Nausher Rao',
         title: 'Chief Executive Officer',
@@ -90,7 +85,7 @@ const teamMembers = [
         image: Jackie,
         linkedin: 'https://www.linkedin.com/in/jacquellinetruong/',
         website: 'https://jacquelinetruong.dev/',
-        bio: "Hi! I'm Jacqueline — a computer science student and designer with a knack for bringing creativity to life. Whether it's crafting digital experiences or turning everyday ideas into art, I'm all about making the world a little more eye-catching.",
+        bio: "Hi! I'm Jacqueline, a computer science student and designer with a knack for bringing creativity to life. Whether it's crafting digital experiences or turning everyday ideas into art, I'm all about making the world a little more eye-catching.",
     },
     {
         name: 'Colman Tsang',
@@ -108,119 +103,111 @@ const teamMembers = [
     },
 ];
 
-interface TeamMember {
-    name: string;
-    title: string;
-    image: string;
-    linkedin?: string;
-    website?: string;
-    bio?: string;
-}
+const MemberDialog = ({ member, onClose }: { member: TeamMember | null; onClose: () => void }) => {
+    const ref = useRef<HTMLDialogElement>(null);
 
-const TooltipContent = ({ member }: { member: TeamMember }) => (
-    <div className="p-2">
-        <div className="font-bold text-lg mb-2">{member.name}</div>
-        <div className="text-gray-300 text-sm mb-3">
-            {member.bio || 'This person was lazy and will add a bio later!'}
-        </div>
-        <div className="flex gap-3">
-            {member.linkedin && (
-                <a
-                    href={member.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-400 hover:text-blue-300 transition-colors"
-                >
-                    <FaLinkedin size={20} />
-                </a>
+    useEffect(() => {
+        const dialog = ref.current;
+        if (!dialog) return;
+        if (member && !dialog.open) dialog.showModal();
+        if (!member && dialog.open) dialog.close();
+    }, [member]);
+
+    return (
+        <dialog
+            ref={ref}
+            onClose={onClose}
+            onClick={(e) => {
+                // Clicks on the backdrop land on the dialog element itself
+                if (e.target === e.currentTarget) onClose();
+            }}
+            aria-labelledby="member-name"
+            className="member-dialog m-auto w-[min(40rem,calc(100vw-2.5rem))] overflow-hidden rounded-2xl border border-ink-line bg-ink-raised p-0 text-paper"
+        >
+            {member && (
+                <div className="grid sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+                    <img
+                        src={member.image}
+                        alt=""
+                        className="aspect-[4/3] w-full object-cover object-[50%_25%] sm:aspect-auto sm:h-full"
+                    />
+                    <div className="relative flex flex-col p-6 sm:p-8">
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            aria-label="Close"
+                            className="absolute right-3 top-3 grid size-10 place-items-center rounded-full text-paper-muted transition-colors hover:bg-white/5 hover:text-paper"
+                        >
+                            <X size={20} />
+                        </button>
+                        <h3 id="member-name" className="font-display pr-10 text-2xl font-semibold tracking-tight">
+                            {member.name}
+                        </h3>
+                        <p className="mt-1 text-[15px] text-azure-soft">{member.title}</p>
+                        <p className="mt-5 leading-relaxed text-paper-muted">
+                            {member.bio || 'This person was lazy and will add a bio later!'}
+                        </p>
+                        <div className="mt-auto flex flex-wrap gap-2 pt-6">
+                            {member.linkedin && (
+                                <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="btn btn-ghost h-10 px-4 text-sm">
+                                    LinkedIn <ArrowUpRight size={14} aria-hidden="true" />
+                                </a>
+                            )}
+                            {member.website && (
+                                <a href={member.website} target="_blank" rel="noopener noreferrer" className="btn btn-ghost h-10 px-4 text-sm">
+                                    Website <ArrowUpRight size={14} aria-hidden="true" />
+                                </a>
+                            )}
+                        </div>
+                    </div>
+                </div>
             )}
-            {member.website && (
-                <a
-                    href={member.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-gray-400 hover:text-gray-300 transition-colors"
-                >
-                    <FaGlobe size={20} />
-                </a>
-            )}
-        </div>
-    </div>
-);
-
-const TeamMemberCard = ({ member }: { member: TeamMember }) => (
-    <Tippy
-        content={<TooltipContent member={member} />}
-        theme="material"
-        placement="top"
-        arrow={true}
-        duration={200}
-        interactive={true}
-        className="team-tooltip"
-    >
-        <div className="relative group cursor-pointer">
-            <div className="overflow-hidden rounded-2xl aspect-square">
-                <img
-                    src={member.image}
-                    alt={member.name}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                />
-            </div>
-
-            <div className="mt-3 space-y-0.5">
-                <h3 className="text-white font-bold text-xl">{member.name}</h3>
-                <p className="text-gray-400 text-sm md:text-base">
-                    {member.title}
-                </p>
-            </div>
-        </div>
-    </Tippy>
-);
+        </dialog>
+    );
+};
 
 const Team = () => {
+    const [selected, setSelected] = useState<TeamMember | null>(null);
+
     return (
-        <div className="py-16 px-4 md:px-8 lg:px-16 xl:px-24" id="team">
-            <div className="max-w-[1200px] mx-auto">
-                <h2 className="mb-6 text-4xl font-bold">
-                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#5084F5] to-[#00FFCC]">
-                        Our Team
-                    </span>
+        <section id="team" aria-labelledby="team-heading" className="mx-auto max-w-page px-5 py-24 md:px-8 md:py-32">
+            <Reveal>
+                <h2 id="team-heading" className="font-display text-5xl font-bold tracking-tight md:text-6xl">
+                    Our team
                 </h2>
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                    {teamMembers.map((member) => (
-                        <TeamMemberCard key={member.name} member={member} />
-                    ))}
-                </div>
-            </div>
+                <p className="mt-4 max-w-[48ch] text-lg text-paper-muted">
+                    The people who plan, staff and run every Konfer event.
+                </p>
+            </Reveal>
 
-            <style>{`
-                .team-tooltip {
-                    background-color: #1a1a1a !important;
-                    border: 1px solid #333 !important;
-                    max-width: 300px !important;
-                    border-radius: 16px !important;
-                }
-                
-                .tippy-arrow {
-                    color: #1a1a1a !important;
-                }
-                
-                .tippy-content {
-                    padding: 12px !important;
-                    border-radius: 15px !important;
-                }
+            <ul className="mt-12 grid grid-cols-2 gap-x-4 gap-y-10 md:mt-16 md:grid-cols-3 lg:grid-cols-4 lg:gap-x-6">
+                {teamMembers.map((member, i) => (
+                    <Reveal as="li" key={member.name} delay={(i % 4) * 0.05}>
+                        <button
+                            type="button"
+                            onClick={() => setSelected(member)}
+                            aria-haspopup="dialog"
+                            className="group block w-full rounded-xl text-left"
+                        >
+                            <span className="block overflow-hidden rounded-xl bg-ink-raised">
+                                <img
+                                    src={member.image}
+                                    alt=""
+                                    loading="lazy"
+                                    decoding="async"
+                                    className="aspect-[4/5] w-full object-cover grayscale-[35%] transition-[scale,filter] duration-300 ease-out group-hover:scale-[1.03] group-hover:grayscale-0"
+                                />
+                            </span>
+                            <span className="mt-4 block text-lg font-medium leading-snug">{member.name}</span>
+                            <span className="mt-0.5 block text-[15px] text-paper-muted">{member.title}</span>
+                        </button>
+                    </Reveal>
+                ))}
+            </ul>
 
-                .tippy-box {
-                    border-radius: 16px !important;
-                }
-                
-                .tippy-box[data-placement^='top'] > .tippy-arrow::before {
-                    border-radius: 0 !important;
-                }
-            `}</style>
-        </div>
+            <MemberDialog member={selected} onClose={() => setSelected(null)} />
+        </section>
     );
 };
 
 export { Team };
-
