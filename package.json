@@ -8,7 +8,8 @@
         "build": "tsc -b && vite build",
         "lint": "eslint .",
         "preview": "vite preview",
-        "deploy:preview": "pnpm build && firebase hosting:channel:deploy preview --expires 7d"
+        "deploy:preview": "pnpm build && firebase hosting:channel:deploy preview --expires 7d",
+        "prepare": "husky"
     },
     "dependencies": {
         "@fontsource-variable/archivo": "^5.3.0",
@@ -20,6 +21,8 @@
         "react-router-dom": "^6.26.2"
     },
     "devDependencies": {
+        "@commitlint/cli": "^21.2.4",
+        "@commitlint/config-conventional": "^21.2.4",
         "@eslint/js": "^9.9.0",
         "@tailwindcss/vite": "^4.3.3",
         "@types/node": "^22.5.5",
@@ -31,6 +34,7 @@
         "eslint-plugin-react-refresh": "^0.4.9",
         "firebase-tools": "^13.27.0",
         "globals": "^15.9.0",
+        "husky": "^9.1.7",
         "tailwindcss": "^4.3.3",
         "typescript": "^5.5.3",
         "typescript-eslint": "^8.0.1",

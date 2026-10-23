@@ -47,3 +47,7 @@ Releases are managed with [release-please](https://github.com/googleapis/release
 1. Merge changes into `main` using [Conventional Commit](https://www.conventionalcommits.org/) messages (for example `feat: add speaker page` or `fix: correct mobile nav`).
 2. release-please opens a release PR on `main` with the version bump and updated `CHANGELOG.md`.
 3. Merge the release PR. release-please tags the release, then CI merges `main` into `live` and deploys to Firebase Hosting.
+
+### Commit messages
+
+This repo enforces [Conventional Commits](https://www.conventionalcommits.org/) via commitlint and husky. Allowed types: `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `revert`, `style`, `test`. Use a lowercase subject without a trailing period. PR titles should follow the same convention so squash merges work well with release-please.
