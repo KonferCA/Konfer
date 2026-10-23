@@ -39,3 +39,11 @@ $ pnpm i
 ```sh
 $ pnpm dev
 ```
+
+## Releases :rocket:
+
+Releases are managed with [release-please](https://github.com/googleapis/release-please).
+
+1. Merge changes into `main` using [Conventional Commit](https://www.conventionalcommits.org/) messages (for example `feat: add speaker page` or `fix: correct mobile nav`).
+2. release-please opens a release PR on `main` with the version bump and updated `CHANGELOG.md`.
+3. Merge the release PR. release-please tags the release, then CI merges `main` into `live` and deploys to Firebase Hosting.
